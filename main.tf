@@ -26,8 +26,8 @@ module "aws-cert" {
 
   alternative_domains_count   = 2
   alternative_domains         = ["*.${var.root_domain_name}"]
-  certificate_body            = "${file(var.cert_body_path)}"
-  private_key                 = "${file(var.private_key_path)}"
+  # certificate_body            = "${file(var.cert_body_path)}"
+  # private_key                 = "${file(var.private_key_path)}"
 }
 
 resource "aws_cloudfront_origin_access_identity" "origin_access_identity" {
@@ -141,27 +141,30 @@ resource "aws_security_group" "default" {
 }
 
 resource "aws_waf_ipset" "epam_ipset" {
-  name = "epam_ipset"
+  count = "${length(var.epam_cidr)}"
+  name  = "epam_ipset"
 
   ip_set_descriptors {
     type  = "IPV4"
-    value = "${var.epam_cidr}"
+    value = "${element(var.epam_cidr, count.index)}"
   }
 }
 
 resource "aws_waf_rule" "epam_wafrule" {
+  count       = "${length(var.epam_cidr)}"
   depends_on  = ["aws_waf_ipset.epam_ipset"]
   name        = "epam_wafrule"
   metric_name = "EpamWafRule"
 
   predicates {
-    data_id = "${aws_waf_ipset.epam_ipset.id}"
+    data_id = "${aws_waf_ipset.epam_ipset.*.id}"
     negated = false
     type    = "IPMatch"
   }
 }
 
 resource "aws_waf_web_acl" "epam_waf_acl" {
+  count       = "${length(var.epam_cidr)}"
   depends_on  = ["aws_waf_ipset.epam_ipset", "aws_waf_rule.epam_wafrule"]
   name        = "epam_waf_acl"
   metric_name = "EpamWebACL"
@@ -176,7 +179,7 @@ resource "aws_waf_web_acl" "epam_waf_acl" {
     }
 
     priority = 1
-    rule_id  = "${aws_waf_rule.epam_wafrule.id}"
+    rule_id  = "${aws_waf_rule.epam_wafrule.*.id}"
     type     = "REGULAR"
   }
 }
