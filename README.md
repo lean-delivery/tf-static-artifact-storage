@@ -12,8 +12,6 @@ vpc_cidr            = "10.10.1.0/24"
 epam_cidr           = "192.168.1.0/24"
 security_groups     = ["test-sg"]
 s3_bucket_name      = "tf-static-artifactory-storage"
-cert_body_path      = "./certs/example.crt.pem"
-private_key_path    = "./certs/example.key.pem"
 ```
 ```
 terraform plan -var-file="./terraform.tfvars"
