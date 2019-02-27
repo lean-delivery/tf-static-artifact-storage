@@ -1,6 +1,5 @@
 provider "aws" {
-  	profile = "dev"
-    region  = "${var.region}"
+  region  = "${var.region}"
 }
 
 locals {
@@ -111,6 +110,7 @@ resource "aws_cloudfront_distribution" "distribution" {
         }
     }
 
+    // apply WAF
     web_acl_id = "${aws_waf_web_acl.epam_waf_acl.id}"
 
     viewer_certificate {

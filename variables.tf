@@ -13,11 +13,9 @@ variable "security_groups" {
 }
 
 variable "cert_body_path" {
-  default = "./certs/example.crt.pem"
 }
 
 variable "private_key_path" {
-  default = "./certs/example.key.pem"
 }
 
 variable "vpc_id" {
