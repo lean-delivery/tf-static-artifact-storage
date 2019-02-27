@@ -29,3 +29,11 @@ variable "vpc_id" {
 variable "vpc_cidr" {}
 
 variable "s3_bucket_name" {}
+
+variable "whitelist" {
+  type = "list"
+}
+
+variable "acm_certificate_arn" {
+  default = ""
+}

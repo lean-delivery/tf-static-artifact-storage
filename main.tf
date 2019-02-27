@@ -7,6 +7,8 @@ locals {
   tags      = "${map("Environment", "test",
                 "Workspace", "${terraform.workspace}",
   )}"
+
+  acm_certificate_arn = "${var.acm_certificate_arn == "" ? module.aws-cert.acm_certificate_arn : var.acm_certificate_arn}"
 }
 
 module "vpc" {
@@ -26,8 +28,6 @@ module "aws-cert" {
 
   alternative_domains_count   = 2
   alternative_domains         = ["*.${var.root_domain_name}"]
-  # certificate_body            = "${file(var.cert_body_path)}"
-  # private_key                 = "${file(var.private_key_path)}"
 }
 
 resource "aws_cloudfront_origin_access_identity" "origin_access_identity" {
@@ -110,11 +110,11 @@ resource "aws_cloudfront_distribution" "distribution" {
         }
     }
 
-    // apply WAF
-    web_acl_id = "${aws_waf_web_acl.epam_waf_acl.id}"
+    // apply Whitelist WAF rules
+    web_acl_id = "${aws_waf_web_acl.whitelist_waf_acl.id}"
 
     viewer_certificate {
-        acm_certificate_arn = "${module.aws-cert.certificate_arn}"
+        acm_certificate_arn = "${local.acm_certificate_arn}"
         ssl_support_method  = "sni-only"
     }
 }
@@ -140,46 +140,40 @@ resource "aws_security_group" "default" {
   }
 }
 
-resource "aws_waf_ipset" "epam_ipset" {
-  count = "${length(var.epam_cidr)}"
-  name  = "epam_ipset"
+resource "aws_waf_ipset" "whitelist_ipset" {
+  name  = "whitelist_ipset"
 
-  ip_set_descriptors {
-    type  = "IPV4"
-    value = "${element(var.epam_cidr, count.index)}"
-  }
+  ip_set_descriptors = "${var.whitelist}"
 }
 
-resource "aws_waf_rule" "epam_wafrule" {
-  count       = "${length(var.epam_cidr)}"
-  depends_on  = ["aws_waf_ipset.epam_ipset"]
-  name        = "epam_wafrule"
-  metric_name = "EpamWafRule"
+resource "aws_waf_rule" "whitelist_wafrule" {
+  depends_on  = ["aws_waf_ipset.whitelist_ipset"]
+  name        = "whitelist_wafrule"
+  metric_name = "WhitelistWafRule"
 
   predicates {
-    data_id = "${aws_waf_ipset.epam_ipset.*.id}"
+    data_id = "${aws_waf_ipset.whitelist_ipset.id}"
     negated = false
     type    = "IPMatch"
   }
 }
 
-resource "aws_waf_web_acl" "epam_waf_acl" {
-  count       = "${length(var.epam_cidr)}"
-  depends_on  = ["aws_waf_ipset.epam_ipset", "aws_waf_rule.epam_wafrule"]
-  name        = "epam_waf_acl"
-  metric_name = "EpamWebACL"
+resource "aws_waf_web_acl" "whitelist_waf_acl" {
+  depends_on  = ["aws_waf_ipset.whitelist_ipset", "aws_waf_rule.whitelist_wafrule"]
+  name        = "whitelist_waf_acl"
+  metric_name = "WhitelistWebACL"
 
   default_action {
-    type = "ALLOW"
+    type = "BLOCK"
   }
 
   rules {
     action {
-      type = "BLOCK"
+      type = "ALLOW"
     }
 
     priority = 1
-    rule_id  = "${aws_waf_rule.epam_wafrule.*.id}"
+    rule_id  = "${aws_waf_rule.whitelist_wafrule.id}"
     type     = "REGULAR"
   }
 }

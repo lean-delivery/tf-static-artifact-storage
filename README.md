@@ -9,9 +9,9 @@ project_name        = "Project"
 environment         = "test"
 root_domain_name    = "example.com"
 vpc_cidr            = "10.10.1.0/24"
-epam_cidr           = "192.168.1.0/24"
 security_groups     = ["test-sg"]
 s3_bucket_name      = "tf-static-artifactory-storage"
+whitelist           = []
 ```
 ```
 terraform plan -var-file="./terraform.tfvars"
