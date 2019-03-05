@@ -1,11 +1,7 @@
 output "vpc_id" {
-  value = "${local.vpc_id}"
+  value = "${module.vpc.vpc_id}"
 }
 
-output "website" {
-    value = "${var.root_domain_name}"
-}
-
-output "epam_cidr" {
-    value = "${var.epam_cidr}"
+output "whitelist" {
+  value = "${var.whitelist}"
 }
