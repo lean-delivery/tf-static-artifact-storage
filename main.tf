@@ -145,7 +145,7 @@ resource "aws_security_group" "default" {
     to_port         = 0
     protocol        = "-1"
     self            = true
-    security_groups = "${var.security_groups}"
+    security_groups = ["${var.security_groups}"]
   }
 
   ingress {
@@ -153,7 +153,7 @@ resource "aws_security_group" "default" {
     to_port         = 0
     protocol        = "-1"
     self            = true
-    security_groups = "${var.security_groups}"
+    security_groups = ["${var.security_groups}"]
   }
 }
 
