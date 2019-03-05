@@ -12,15 +12,18 @@ Terraform project to setup static artifact storage on AWS
 ### Conditional creation
 
 ```
-# terraform.tfvars
-region              = "us-west-2"
-project_name        = "Project"
-environment         = "test"
-root_domain_name    = "example.com"
-vpc_cidr            = "10.10.1.0/24"
-security_groups     = ["test-sg"]
-s3_bucket_name      = "tf-static-artifactory-storage"
-whitelist           = []
+module "static-artifact-storage" {
+    source = "github.com/lean-delivery/tf-module-static-artifact-storage"
+    
+    region          = "us-west-2"
+    project         = "Project"
+    environment     = "test"
+    root_domain     = "example.com"
+    vpc_cidr        = "10.10.1.0/24"
+    security_groups = []
+    s3_bucket_name  = "tf-static-artifactory-storage"
+    whitelist       = []
+}
 ```
 
 ### Examples
