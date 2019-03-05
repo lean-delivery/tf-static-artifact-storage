@@ -13,7 +13,7 @@ locals {
 }
 
 module "vpc" {
-  source = "github.com/lean-delivery/tf-module-awscore.git?ref=master"
+  source = "github.com/lean-delivery/tf-module-awscore"
 
   create_route53_zone = "true"
   root_domain         = "${var.root_domain}"
@@ -24,7 +24,7 @@ module "vpc" {
 }
 
 module "aws-cert" {
-  source = "github.com/lean-delivery/tf-module-aws-acm.git?ref=master"
+  source = "github.com/lean-delivery/tf-module-aws-acm"
 
   module_enabled = "${var.acm_certificate_arn == "" ? true : false}"
   domain         = "${var.root_domain}"
