@@ -28,7 +28,7 @@ module "static-artifact-storage" {
 
 ### Examples
 
-* [Work in progress ](https://github.com/lean-delivery/tf-module-aws-core/tree/master/examples)
+* [Example folder](https://github.com/lean-delivery/tf-module-aws-core/tree/master/examples)
 
 ## Inputs
 
