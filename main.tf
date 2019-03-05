@@ -65,9 +65,9 @@ resource "aws_s3_bucket" "origin" {
 }
 EOF
 
-  website {
-    index_document = "index.html"
-    error_document = "404.html"
+  logging {
+    target_bucket = "${var.s3_bucket_name}"
+    target_prefix = "log/"
   }
 
   tags = "${merge(local.default_tags, var.tags)}"
@@ -89,6 +89,12 @@ resource "aws_cloudfront_distribution" "default" {
       origin_access_identity = "${aws_cloudfront_origin_access_identity.origin_access_identity.cloudfront_access_identity_path}"
     }
   }
+
+  custom_origin_config {}
+
+  logging_config{}
+
+
 
   default_cache_behavior {
     allowed_methods  = ["HEAD", "GET", "OPTIONS"]
