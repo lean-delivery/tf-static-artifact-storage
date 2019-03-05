@@ -43,7 +43,7 @@ module "static-artifact-storage" {
 | vpc\_cidr | The CIDR block for the VPC. Default value is a valid CIDR, but not acceptable by AWS and should be overridden | string | `"0.0.0.0/16"` | no |
 | s3_bucket_name | S3 bucket name | string | `tf-static-artifact-storage` | no |
 | whitelist | List of whitelist CIDRs | list | `[]` | no |
-| act_certificate_arn | ARN of certificate | string | `""` | no |
+| acm_certificate_arn | ARN of certificate | string | `""` | no |
 | price_class | Default price class | string | `"PriceClass_200"` | no|
 
 ## Outputs
