@@ -2,10 +2,12 @@ variable "region" {
   default     = "us-west-2"
   description = "AWS Region"
 }
+
 variable "project" {
   default     = "project"
   description = "Project name is used to identify resources"
 }
+
 variable "environment" {
   default     = "dev"
   description = "Environment name is used to identify resources"

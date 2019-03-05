@@ -1,5 +1,5 @@
 provider "aws" {
-  region  = "${var.region}"
+  region = "${var.region}"
 }
 
 locals {
@@ -19,16 +19,16 @@ module "vpc" {
   root_domain         = "${var.root_domain}"
   project             = "${var.project}-${var.environment}"
   vpc_cidr            = "${var.vpc_cidr}"
-  
+
   tags = "${merge(local.default_tags, var.tags)}"
 }
 
 module "aws-cert" {
-  source  = "github.com/lean-delivery/tf-module-aws-acm"
+  source = "github.com/lean-delivery/tf-module-aws-acm"
 
-  module_enabled  = "${var.acm_certificate_arn == "" ? true : false}"
-  domain          = "${var.root_domain}"
-  zone_id         = "${module.vpc.route53_zone_id}"
+  module_enabled = "${var.acm_certificate_arn == "" ? true : false}"
+  domain         = "${var.root_domain}"
+  zone_id        = "${module.vpc.route53_zone_id}"
 
   tags = "${merge(local.default_tags, var.tags)}"
 }
@@ -38,10 +38,11 @@ resource "aws_cloudfront_origin_access_identity" "origin_access_identity" {
 }
 
 resource "aws_s3_bucket" "origin" {
-    bucket          = "${var.s3_bucket_name}"
-    acl             = "private"
-    force_destroy   = true
-    policy = <<EOF
+  bucket        = "${var.s3_bucket_name}"
+  acl           = "private"
+  force_destroy = true
+
+  policy = <<EOF
 {
 "Id": "bucket_policy_site",
 "Version": "2012-10-17",
@@ -64,21 +65,21 @@ resource "aws_s3_bucket" "origin" {
 }
 EOF
 
-    website {
-        index_document = "index.html"
-        error_document = "404.html"
-    }
+  website {
+    index_document = "index.html"
+    error_document = "404.html"
+  }
 
-    tags = "${merge(local.default_tags, var.tags)}"
+  tags = "${merge(local.default_tags, var.tags)}"
 }
 
 resource "aws_cloudfront_distribution" "default" {
-  enabled       = true
-  price_class   = "${var.price_class}"
-  http_version  = "http2"
-  aliases       = ["${var.root_domain}", "www.${var.root_domain}"]
-  web_acl_id    = "${aws_waf_web_acl.whitelist_waf_acl.id}"
-  depends_on    = ["aws_s3_bucket.origin"]
+  enabled      = true
+  price_class  = "${var.price_class}"
+  http_version = "http2"
+  aliases      = ["${var.root_domain}", "www.${var.root_domain}"]
+  web_acl_id   = "${aws_waf_web_acl.whitelist_waf_acl.id}"
+  depends_on   = ["aws_s3_bucket.origin"]
 
   origin {
     origin_id   = "${local.distribution_label}"
@@ -90,13 +91,13 @@ resource "aws_cloudfront_distribution" "default" {
   }
 
   default_cache_behavior {
-    allowed_methods   = ["HEAD", "GET", "OPTIONS"]
-    cached_methods    = ["HEAD", "GET", "OPTIONS"]
-    target_origin_id  = "${local.distribution_label}"
+    allowed_methods  = ["HEAD", "GET", "OPTIONS"]
+    cached_methods   = ["HEAD", "GET", "OPTIONS"]
+    target_origin_id = "${local.distribution_label}"
 
-    min_ttl     = 0
-    default_ttl = 3600
-    max_ttl     = 86400
+    min_ttl                = 0
+    default_ttl            = 3600
+    max_ttl                = 86400
     viewer_protocol_policy = "redirect-to-https"
     compress               = true
 
@@ -114,10 +115,12 @@ resource "aws_cloudfront_distribution" "default" {
       restriction_type = "none"
     }
   }
+
   viewer_certificate {
-    acm_certificate_arn             = "${local.acm_certificate_arn}"
-    ssl_support_method              = "sni-only"
-    minimum_protocol_version        = "TLSv1"
+    acm_certificate_arn      = "${local.acm_certificate_arn}"
+    ssl_support_method       = "sni-only"
+    minimum_protocol_version = "TLSv1"
+
     # cloudfront_default_certificate  = "${var.acm_certificate_arn == "" ? true : false}"
   }
 
@@ -136,6 +139,7 @@ resource "aws_security_group" "default" {
     self            = true
     security_groups = "${var.security_groups}"
   }
+
   ingress {
     from_port       = 0
     to_port         = 0
@@ -146,7 +150,7 @@ resource "aws_security_group" "default" {
 }
 
 resource "aws_waf_ipset" "whitelist_ipset" {
-  name  = "whitelist_ipset"
+  name = "whitelist_ipset"
 
   ip_set_descriptors = "${var.whitelist}"
 }
