@@ -37,33 +37,41 @@ resource "aws_cloudfront_origin_access_identity" "origin_access_identity" {
   comment = "${local.distribution_label}"
 }
 
+data "aws_iam_policy_document" "origin" {
+  statement {
+    actions   = ["s3:GetObject"]
+    resources = ["arn:aws:s3:::$${bucket_name}/"]
+
+    principals {
+      type        = "AWS"
+      identifiers = ["${aws_cloudfront_origin_access_identity.origin_access_identity.iam_arn}"]
+    }
+  }
+
+  statement {
+    actions   = ["s3:ListBucket"]
+    resources = ["arn:aws:s3:::$${bucket_name}"]
+
+    principals {
+      type        = "AWS"
+      identifiers = ["${aws_cloudfront_origin_access_identity.origin_access_identity.iam_arn}"]
+    }
+  }
+}
+
+data "template_file" "default" {
+  template = "${data.aws_iam_policy_document.origin.json}"
+
+  vars {
+    origin_path = "/"
+    bucket_name = "${var.s3_bucket_name}"
+  }
+}
+
 resource "aws_s3_bucket" "origin" {
   bucket        = "${var.s3_bucket_name}"
   acl           = "private"
   force_destroy = true
-
-  policy = <<EOF
-{
-"Id": "bucket_policy_site",
-"Version": "2012-10-17",
-"Statement": [
-    {
-    "Sid": "bucket_policy_site_root",
-    "Action": ["s3:ListBucket"],
-    "Effect": "Allow",
-    "Resource": "arn:aws:s3:::${var.s3_bucket_name}",
-    "Principal": {"AWS":"${aws_cloudfront_origin_access_identity.origin_access_identity.iam_arn}"}
-    },
-    {
-    "Sid": "bucket_policy_site_all",
-    "Action": ["s3:GetObject"],
-    "Effect": "Allow",
-    "Resource": "arn:aws:s3:::${var.s3_bucket_name}/*",
-    "Principal": {"AWS":"${aws_cloudfront_origin_access_identity.origin_access_identity.iam_arn}"}
-    }
-]
-}
-EOF
 
   logging {
     target_bucket = "${var.s3_bucket_name}"
@@ -71,6 +79,11 @@ EOF
   }
 
   tags = "${merge(local.default_tags, var.tags)}"
+}
+
+resource "aws_s3_bucket_policy" "default" {
+  bucket = "${aws_s3_bucket.origin.id}"
+  policy = "${data.template_file.default.rendered}"
 }
 
 resource "aws_cloudfront_distribution" "default" {
