@@ -1,7 +1,3 @@
-provider "aws" {
-  region = "${var.region}"
-}
-
 locals {
   default_tags = {
     Project     = "${var.project}"
@@ -109,8 +105,6 @@ resource "aws_cloudfront_distribution" "default" {
       origin_ssl_protocols   = ["TLSv1", "TLSv1.1", "TLSv1.2"]
     }
   }
-
-  logging_config {}
 
   default_cache_behavior {
     allowed_methods  = ["HEAD", "GET", "OPTIONS"]

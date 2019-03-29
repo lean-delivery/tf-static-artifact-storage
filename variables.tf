@@ -1,8 +1,3 @@
-variable "region" {
-  default     = "us-west-2"
-  description = "AWS Region"
-}
-
 variable "project" {
   default     = "project"
   description = "Project name is used to identify resources"
