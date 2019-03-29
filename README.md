@@ -14,8 +14,7 @@ Terraform project to setup static artifact storage on AWS
 ```
 module "static-artifact-storage" {
     source = "github.com/lean-delivery/tf-module-static-artifact-storage"
-    
-    region          = "us-west-2"
+
     project         = "Project"
     environment     = "test"
     root_domain     = "example.com"
@@ -34,7 +33,6 @@ module "static-artifact-storage" {
 
 | Name | Description | Type | Default | Required |
 |------|-------------|:----:|:-----:|:-----:|
-| region | AWS Region | string | `"us-west-2"` | yes |
 | project | Project name is used to identify resources | string | `"project"` | no |
 | environment | Environment name is used to identify resources | string | `"dev"` | no |
 | root\_domain | Name of Route53 zone (if 'create_route53_zone' = True) | string | `"example.com"` | no |
