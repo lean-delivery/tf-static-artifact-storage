@@ -4,7 +4,7 @@ locals {
     Environment = "${var.environment}"
   }
 
-  distribution_label  = "${var.project}-${var.environment}-distribution_label"
+  distribution_label = "${var.project}-${var.environment}-distribution_label"
 }
 
 resource "aws_cloudfront_origin_access_identity" "origin_access_identity" {
@@ -115,7 +115,7 @@ resource "aws_cloudfront_distribution" "default" {
     ssl_support_method       = "sni-only"
     minimum_protocol_version = "TLSv1"
 
-    cloudfront_default_certificate  = "${var.acm_certificate_arn}"
+    cloudfront_default_certificate = "${var.acm_certificate_arn}"
   }
 
   tags = "${merge(local.default_tags, var.tags)}"
