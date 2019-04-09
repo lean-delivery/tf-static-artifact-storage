@@ -4,29 +4,7 @@ locals {
     Environment = "${var.environment}"
   }
 
-  acm_certificate_arn = "${var.acm_certificate_arn == "" ? module.aws-cert.acm_certificate_arn : var.acm_certificate_arn}"
   distribution_label  = "${var.project}-${var.environment}-distribution_label"
-}
-
-module "vpc" {
-  source = "github.com/lean-delivery/tf-module-awscore"
-
-  create_route53_zone = "true"
-  root_domain         = "${var.root_domain}"
-  project             = "${var.project}-${var.environment}"
-  vpc_cidr            = "${var.vpc_cidr}"
-
-  tags = "${merge(local.default_tags, var.tags)}"
-}
-
-module "aws-cert" {
-  source = "github.com/lean-delivery/tf-module-aws-acm"
-
-  module_enabled = "${var.acm_certificate_arn == "" ? true : false}"
-  domain         = "${var.root_domain}"
-  zone_id        = "${module.vpc.route53_zone_id}"
-
-  tags = "${merge(local.default_tags, var.tags)}"
 }
 
 resource "aws_cloudfront_origin_access_identity" "origin_access_identity" {
@@ -133,36 +111,14 @@ resource "aws_cloudfront_distribution" "default" {
   }
 
   viewer_certificate {
-    acm_certificate_arn      = "${local.acm_certificate_arn}"
+    acm_certificate_arn      = "${var.acm_certificate_arn}"
     ssl_support_method       = "sni-only"
     minimum_protocol_version = "TLSv1"
 
-    # cloudfront_default_certificate  = "${var.acm_certificate_arn == "" ? true : false}"
+    cloudfront_default_certificate  = "${var.acm_certificate_arn}"
   }
 
   tags = "${merge(local.default_tags, var.tags)}"
-}
-
-resource "aws_security_group" "default" {
-  name        = "Default security group"
-  description = "Default security group"
-  vpc_id      = "${module.vpc.vpc_id}"
-
-  ingress {
-    from_port       = 0
-    to_port         = 0
-    protocol        = "-1"
-    self            = true
-    security_groups = ["${var.security_groups}"]
-  }
-
-  ingress {
-    from_port       = 0
-    to_port         = 0
-    protocol        = "-1"
-    self            = true
-    security_groups = ["${var.security_groups}"]
-  }
 }
 
 resource "aws_waf_ipset" "whitelist_ipset" {

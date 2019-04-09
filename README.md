@@ -18,8 +18,6 @@ module "static-artifact-storage" {
     project         = "Project"
     environment     = "test"
     root_domain     = "example.com"
-    vpc_cidr        = "10.10.1.0/24"
-    security_groups = []
     s3_bucket_name  = "tf-static-artifactory-storage"
     whitelist       = []
 }
@@ -37,8 +35,6 @@ module "static-artifact-storage" {
 | environment | Environment name is used to identify resources | string | `"dev"` | no |
 | root\_domain | Name of Route53 zone (if 'create_route53_zone' = True) | string | `"example.com"` | no |
 | tags | Additional tags for resources | map | `{}` | no |
-| security_groups | List of security groups ids | list | `[]` | no |
-| vpc\_cidr | The CIDR block for the VPC. Default value is a valid CIDR, but not acceptable by AWS and should be overridden | string | `"0.0.0.0/16"` | no |
 | s3_bucket_name | S3 bucket name | string | `tf-static-artifact-storage` | no |
 | whitelist | List of whitelist CIDRs | list | `[]` | no |
 | acm_certificate_arn | ARN of certificate | string | `""` | no |
@@ -48,7 +44,6 @@ module "static-artifact-storage" {
 
 | Name | Description |
 |------|-------------|
-| vpc_id | id of VPC |
 | whitelist | List of whitelist CIDRs |
 
 ## Terraform versions

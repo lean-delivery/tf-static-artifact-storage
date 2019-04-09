@@ -19,17 +19,6 @@ variable "root_domain" {
   description = "Name of Route53 zone (if 'create_route53_zone' = True)"
 }
 
-variable "security_groups" {
-  type        = "list"
-  default     = []
-  description = "List of security groups ids"
-}
-
-variable "vpc_cidr" {
-  default     = "0.0.0.0/16"
-  description = "The CIDR block for the VPC. Default value is a valid CIDR, but not acceptable by AWS and should be overridden"
-}
-
 variable "s3_bucket_name" {
   default     = "tf-static-artifact-storage"
   description = "S3 bucket name"
