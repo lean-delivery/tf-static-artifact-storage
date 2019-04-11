@@ -129,6 +129,12 @@ resource "aws_cloudfront_distribution" "default" {
     cloudfront_default_certificate = "${var.acm_certificate_arn == "" ? true : false}"
   }
 
+  logging_config {
+    include_cookies = false
+    bucket          = "${var.s3_bucket_name}"
+    prefix          = "cflog/"
+  }
+
   tags = "${merge(local.default_tags, var.tags)}"
 }
 
