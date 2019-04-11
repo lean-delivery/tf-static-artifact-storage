@@ -3,8 +3,9 @@ locals {
     Project     = "${var.project}"
     Environment = "${var.environment}"
   }
+
   acm_certificate_arn = "${var.acm_certificate_arn == "" ? module.aws-cert.acm_certificate_arn : var.acm_certificate_arn}"
-  distribution_label = "${var.project}-${var.environment}-distribution_label"
+  distribution_label  = "${var.project}-${var.environment}-distribution_label"
 }
 
 resource "aws_cloudfront_origin_access_identity" "origin_access_identity" {
@@ -63,9 +64,9 @@ resource "aws_s3_bucket_policy" "default" {
 module "aws-cert" {
   source = "github.com/lean-delivery/tf-module-aws-acm"
 
-  module_enabled  = "${var.acm_certificate_arn == "" ? true : false}"
-  domain          = "${var.root_domain}"
-  zone_id         = "${aws_cloudfront_distribution.default.hosted_zone_id}"
+  module_enabled = "${var.acm_certificate_arn == "" ? true : false}"
+  domain         = "${var.root_domain}"
+  zone_id        = "${aws_cloudfront_distribution.default.hosted_zone_id}"
 
   tags = "${merge(local.default_tags, var.tags)}"
 }
