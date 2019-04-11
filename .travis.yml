@@ -1,0 +1,17 @@
+dist: xenial
+sudo: required
+
+language: python
+python:
+  - "2.7"
+
+services:
+  - docker
+
+script:
+  - docker run --rm -v $(pwd):/work/ --workdir=/work/ -t leandelivery/docker-terraform-ci terraform fmt -check=true
+  - docker run --rm -v $(pwd):/work/ --workdir=/work/ -t leandelivery/docker-terraform-ci terraform validate -check-variables=false
+  - docker run --rm -v $(pwd):/work/ --workdir=/work/ -t leandelivery/docker-terraform-ci tf_readme_validator.py
+  - docker run --rm -v $(pwd):/work/ --workdir=/work/ -t leandelivery/docker-terraform-ci cred-alert scan -f .
+  - docker run --rm -v $(pwd):/work/ --workdir=/work/ -t leandelivery/docker-terraform-ci tflint --ignore-module="github.com/lean-delivery/tf-module-awscore","github.com/lean-delivery/tf-module-aws-acm"
+  - docker run --rm -v $(pwd):/work/ --workdir=/work/ -t leandelivery/docker-terraform-ci terrascan --location . --test all
