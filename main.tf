@@ -3,7 +3,7 @@ locals {
     Project     = "${var.project}"
     Environment = "${var.environment}"
   }
-
+  acm_certificate_arn = "${var.acm_certificate_arn == "" ? module.aws-cert.acm_certificate_arn : var.acm_certificate_arn}"
   distribution_label = "${var.project}-${var.environment}-distribution_label"
 }
 
@@ -60,6 +60,16 @@ resource "aws_s3_bucket_policy" "default" {
   policy = "${data.template_file.default.rendered}"
 }
 
+module "aws-cert" {
+  source = "github.com/lean-delivery/tf-module-aws-acm"
+
+  module_enabled  = "${var.acm_certificate_arn == "" ? true : false}"
+  domain          = "${var.root_domain}"
+  zone_id         = "${aws_cloudfront_distribution.default.hosted_zone_id}"
+
+  tags = "${merge(local.default_tags, var.tags)}"
+}
+
 resource "aws_cloudfront_distribution" "default" {
   enabled      = true
   price_class  = "${var.price_class}"
@@ -111,11 +121,11 @@ resource "aws_cloudfront_distribution" "default" {
   }
 
   viewer_certificate {
-    acm_certificate_arn      = "${var.acm_certificate_arn}"
+    acm_certificate_arn      = "${local.acm_certificate_arn}"
     ssl_support_method       = "sni-only"
     minimum_protocol_version = "TLSv1"
 
-    cloudfront_default_certificate = "${var.acm_certificate_arn}"
+    cloudfront_default_certificate = "${var.acm_certificate_arn == "" ? true : false}"
   }
 
   tags = "${merge(local.default_tags, var.tags)}"
